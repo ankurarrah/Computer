@@ -9,10 +9,11 @@ function App() {
   const [fileSelected, setFileSelected] = useState(null);
   const [analysis, setAnalysis] = useState(null);
   const [processing, setProcessing] = useState(false);
-  
+
   const handleChange = (e) => {
     setFileSelected(e.target.value)
   }
+
   const onFileUrlEntered = (e) => {
 
     // hold UI
@@ -30,7 +31,7 @@ function App() {
 
   // Display JSON data in readable format
   const PrettyPrintJson = (data) => {
-    return (<div><pre>{JSON.stringify(data, null, 2)}</pre></div>);
+    return (<div>Text<pre>{JSON.stringify(data, null, 2)}</pre><br />Links<pre>{getLinks(data).join('\n')}</pre></div>);
   }
 
   const DisplayResults = () => {
@@ -42,33 +43,33 @@ function App() {
       </div>
     )
   };
-  
+
   const Analyze = () => {
     return (
-    <div>
-      <h1>Analyze image</h1>
-      {!processing &&
-        <div>
+      <div>
+        <h1>Analyze image</h1>
+        {!processing &&
           <div>
-            <label>URL</label>
-            <input type="text" placeholder="Enter URL" size="50" onChange={handleChange}></input>
+            <div>
+              <label>URL</label>
+              <input type="text" placeholder="Enter URL" size="50" onChange={handleChange}></input>
+            </div>
+            <button onClick={onFileUrlEntered}>Analyze</button>
           </div>
-          <button onClick={onFileUrlEntered}>Analyze</button>
-        </div>
-      }
-      {processing && <div>Processing</div>}
-      <hr />
-      {analysis && DisplayResults()}
+        }
+        {processing && <div>Processing</div>}
+        <hr />
+        {analysis && DisplayResults()}
       </div>
     )
   }
-  
+
   const CantAnalyze = () => {
     return (
       <div>Key and/or endpoint not configured in ./azure-cognitiveservices-computervision.js</div>
     )
   }
-  
+
   function Render() {
     const ready = ComputerVisionIsConfigured();
     if (ready) {
@@ -77,11 +78,34 @@ function App() {
     return <CantAnalyze />;
   }
 
+  function getLinks(input) {
+    var expression = /(https?:\/\/)?[\w\-~]+(\.[\w\-~]+)+(\/[\w\-~@:%]*)*(#[\w\-]*)?(\?[^\s]*)?/gi;
+    var regex = new RegExp(expression);
+    var match = ''; var splitText = []; var startIndex = 0;
+    
+    var textToCheck = Array.isArray(input) ? input.join(' ') : input;
+    while ((match = regex.exec(textToCheck)) != null) {
+
+      // splitText.push({ text: textToCheck.substr(startIndex, (match.index - startIndex)), type: 'text' });
+
+      var cleanedLink = textToCheck.substr(match.index, (match[0].length));
+      cleanedLink = cleanedLink.replace(/^https?:\/\//, '');
+      splitText.push({ text: cleanedLink, type: 'link' });
+
+      startIndex = match.index + (match[0].length);
+    }
+    // if (startIndex < textToCheck.length) 
+    //   splitText.push({ text: textToCheck.substr(startIndex), type: 'text' });
+    //console.log(splitText);
+    //return splitText.map(t=>t.text).join('\n');
+    return [... new Set(splitText.map(t=>t.text))];
+  }
+
   return (
     <div>
       {Render()}
     </div>
-    
+
   );
 }
 
