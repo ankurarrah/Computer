@@ -60,7 +60,7 @@ export const computerVision = async (url) => {
     // analyze image
     const analysis = await computerVisionClient.recognizePrintedText(true,urlToAnalyze, { visualFeatures });
         analysis.text = await readTextFromURL(computerVisionClient, urlToAnalyze);
-    return { "URL": urlToAnalyze, ...analysis.text};
+    return { "URL": urlToAnalyze, text: analysis.text};
 }
 // analyze text in image
 const readTextFromURL = async (client, url) => {
@@ -81,5 +81,5 @@ const readTextFromURL = async (client, url) => {
     
     // Return the first page of result. 
     // Replace[0] with the desired page if this is a multi-page file such as .pdf or.tiff.
-    return result.analyzeResult.readResults[0].lines; 
+    return result.analyzeResult.readResults[0].lines.map(line => line.text); 
 }

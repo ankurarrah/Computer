@@ -38,7 +38,7 @@ function App() {
       <div>
         <h2>Computer Vision Analysis</h2>
         <div><img src={analysis.URL} height="200" border="1" alt={(analysis.description && analysis.description.captions && analysis.description.captions[0].text ? analysis.description.captions[0].text : "can't find caption")} /></div>
-        {PrettyPrintJson(analysis)}
+        {PrettyPrintJson(analysis.text)}
       </div>
     )
   };
