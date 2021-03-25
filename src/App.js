@@ -78,27 +78,63 @@ function App() {
     return <CantAnalyze />;
   }
 
+  // function getLinks(input) {
+  //   // var expression = /(https?:\/\/)?[\w\-~]+(\.[\w\-~]+)+(\/[\w\-~@:%]*)*(#[\w\-]*)?(\?[^\s]*)?/gi;
+  //   var expression = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig; 
+  //   var regex = new RegExp(expression);
+  //   var match = ''; var splitText = []; var startIndex = 0;
+
+  //   var textToCheck = Array.isArray(input) ? input.join(' ') : input;
+  //   while ((match = regex.exec(textToCheck)) != null) {
+
+  //     // splitText.push({ text: textToCheck.substr(startIndex, (match.index - startIndex)), type: 'text' });
+
+  //     var cleanedLink = textToCheck.substr(match.index, (match[0].length));
+  //     //cleanedLink = cleanedLink.replace(/^https?:\/\//, '');
+  //     splitText.push({ text: cleanedLink, type: 'link' });
+
+  //     startIndex = match.index + (match[0].length);
+  //   }
+  //   // if (startIndex < textToCheck.length) 
+  //   //   splitText.push({ text: textToCheck.substr(startIndex), type: 'text' });
+  //   //console.log(splitText);
+  //   //return splitText.map(t=>t.text).join('\n');
+  //   return [... new Set(splitText.map(t=>t.text))];
+  // }
+
   function getLinks(input) {
-    var expression = /(https?:\/\/)?[\w\-~]+(\.[\w\-~]+)+(\/[\w\-~@:%]*)*(#[\w\-]*)?(\?[^\s]*)?/gi;
+    var expressionDomains = /(https?:\/\/)?[\w\-~]+(\.[\w\-~]+)+(\/[\w\-~@:%]*)*(#[\w\-]*)?(\?[^\s]*)?/gi;
+    var expressionProtocol = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+    var expressionEmail = /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gi;
+
+    var l1 = getLinkByExpression(input, expressionDomains);
+    var l2 = getLinkByExpression(input, expressionProtocol);
+    var l3 = getLinkByExpression(input, expressionEmail);
+    l1 = l1.filter(l => l2.filter(w => w.substr(l)).length == 0);
+    return [... new Set(l1.concat(l2).concat(l3))];
+  }
+
+  function getLinkByExpression(input, expression) {
     var regex = new RegExp(expression);
     var match = ''; var splitText = []; var startIndex = 0;
-    
+
     var textToCheck = Array.isArray(input) ? input.join(' ') : input;
     while ((match = regex.exec(textToCheck)) != null) {
 
       // splitText.push({ text: textToCheck.substr(startIndex, (match.index - startIndex)), type: 'text' });
 
       var cleanedLink = textToCheck.substr(match.index, (match[0].length));
-      cleanedLink = cleanedLink.replace(/^https?:\/\//, '');
+      //cleanedLink = cleanedLink.replace(/^https?:\/\//, '');
       splitText.push({ text: cleanedLink, type: 'link' });
 
       startIndex = match.index + (match[0].length);
     }
+    return splitText.map(t => t.text);
     // if (startIndex < textToCheck.length) 
     //   splitText.push({ text: textToCheck.substr(startIndex), type: 'text' });
     //console.log(splitText);
     //return splitText.map(t=>t.text).join('\n');
-    return [... new Set(splitText.map(t=>t.text))];
+    // return [... new Set(splitText.map(t=>t.text))];
   }
 
   return (
